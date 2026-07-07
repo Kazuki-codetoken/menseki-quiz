@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面積公式クイズ</title>
+<style>
+body{font-family:'Yu Gothic',sans-serif;background:#e0f2fe;margin:0;padding:20px}
+.container{max-width:700px;margin:auto;background:white;padding:24px;border-radius:20px;box-shadow:0 4px 12px rgba(0,0,0,.15);text-align:center}
+h1{color:#1d4ed8}
+.shape{font-size:80px}
+.name{font-size:36px;font-weight:bold;color:#2563eb;margin-bottom:16px}
+button{width:100%;padding:12px;margin:6px 0;border:none;border-radius:12px;font-size:18px;cursor:pointer}
+.choice{background:#3b82f6;color:white}
+.hintBtn{background:#facc15}
+.nextBtn{background:#22c55e;color:white}
+.result,.hint,.explanation{margin-top:12px;padding:12px;border-radius:12px}
+.result{background:#dcfce7}
+.hint{background:#fef9c3}
+.explanation{background:#dbeafe}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>図形の面積公式クイズ</h1>
+<div id="shape" class="shape"></div>
+<div id="shapeName" class="name"></div>
+<div id="choices"></div>
+<button class="hintBtn" onclick="toggleHint()">ヒントを見る</button>
+<div id="hint" class="hint" style="display:none"></div>
+<div id="result"></div>
+<button class="nextBtn" onclick="nextQuestion()">次の問題</button>
+</div>
+<script>
+const formulas = [
+{shape:'▭',name:'長方形',formula:'たて × よこ',hint:'向かい合う辺が同じ長さ',explanation:'長方形の面積は、たての長さとよこの長さを掛けて求めます。'},
+{shape:'□',name:'正方形',formula:'一辺 × 一辺',hint:'4つの辺が同じ長さ',explanation:'正方形の面積は、一辺を2回掛けて求めます。'},
+{shape:'△',name:'三角形',formula:'底辺 × 高さ ÷ 2',hint:'長方形の半分',explanation:'三角形の面積は、同じ底辺と高さをもつ長方形の半分です。'},
+{shape:'▱',name:'平行四辺形',formula:'底辺 × 高さ',hint:'長方形に変形できる',explanation:'平行四辺形の面積は、底辺×高さで求めます。'},
+{shape:'⏢',name:'台形',formula:'(上底 + 下底) × 高さ ÷ 2',hint:'平行な辺が2つある',explanation:'上底と下底を足して高さを掛け、2で割ります。'},
+{shape:'◇',name:'ひし形',formula:'対角線 × 対角線 ÷ 2',hint:'対角線に注目',explanation:'ひし形の面積は、2本の対角線を利用して求めます。'},
+{shape:'◯',name:'円',formula:'半径 × 半径 × 円周率',hint:'半径を2回掛ける',explanation:'円の面積は、半径×半径×円周率で求めます。'}
+];
+let current;
+function randomIndex(){
+ return Math.floor(Math.random()*formulas.length);
+}
+function makeChoices(correct){
+ const list=[formulas[correct].formula];
+ while(list.length<4){
+   const f=formulas[randomIndex()].formula;
+   if(!list.includes(f)) list.push(f);
+ }
+ return list.sort(()=>Math.random()-0.5);
+}
+function nextQuestion(){
+ current=randomIndex();
+ const q=formulas[current];
+ document.getElementById('shape').textContent=q.shape;
+ document.getElementById('shapeName').textContent=q.name;
+ document.getElementById('hint').style.display='none';
+ document.getElementById('result').innerHTML='';
+ const area=document.getElementById('choices');
+ area.innerHTML='';
+ makeChoices(current).forEach(choice=>{
+   const btn=document.createElement('button');
+   btn.className='choice';
+   btn.textContent=choice;
+   btn.onclick=()=>checkAnswer(choice);
+   area.appendChild(btn);
+ });
+}
+function toggleHint(){
+ const hint=document.getElementById('hint');
+ if(hint.style.display==='none'){
+   hint.style.display='block';
+   hint.textContent='💡 '+formulas[current].hint;
+ } else {
+   hint.style.display='none';
+ }
+}
+function checkAnswer(choice){
+ const q=formulas[current];
+ const correct=choice===q.formula;
+ document.getElementById('result').innerHTML=
+ '<div class="result"><h3>'+
+ (correct?'⭕ 正解！':'❌ 残念！')+
+ '</h3><div class="explanation"><div style="font-size:48px">'+q.shape+
+ '</div><p>'+q.explanation+'</p><p><strong>公式：</strong>'+q.formula+
+ '</p></div></div>';
+ document.querySelectorAll('.choice').forEach(b=>b.disabled=true);
+}
+
+nextQuestion();
+</script>
+</body>
